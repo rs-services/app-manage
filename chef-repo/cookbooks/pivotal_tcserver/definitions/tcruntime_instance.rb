@@ -18,7 +18,7 @@ define :tcruntime_instance,
   :action => "start",
   :user => "tcserver",
   :group => "pivotal" do
-  
+
   install_dir = node['pivotal_tcserver']['install_dir']
 
   if params[:java_home]
@@ -27,7 +27,7 @@ define :tcruntime_instance,
     Chef::Application.fatal!("java_home must be set. No action taken.")
   end
 
-  if params[:instance_dir] 
+  if params[:instance_dir]
     instance_dir = params[:instance_dir]
   else
     instance_dir = install_dir
@@ -36,7 +36,7 @@ define :tcruntime_instance,
   package node['pivotal_tcserver']['package'] do
     action :install
   end
-  
+
   args  = " #{params[:name]}"
   args += " -i #{instance_dir}"
   args += " -v #{params[:version]}" if params[:version]
@@ -86,13 +86,18 @@ define :tcruntime_instance,
   end
 
   link "/etc/init.d/tcserver-instance-#{params[:name]}" do
-    to "#{instance_dir}/#{params[:name]}/bin/init.d.sh" 
+    to "#{instance_dir}/#{params[:name]}/bin/init.d.sh"
   end
 
-  service "tcserver-instance-#{params[:name]}" do
-    status_command "ps -p `cat #{install_dir}/#{params[:name]}/logs/tcserver.pid` > /dev/null 2>&1"
-    supports :status => true
-    action params[:action]
-  end
+  # service "tcserver-instance-#{params[:name]}" do
+  #   status_command "ps -p `cat #{install_dir}/#{params[:name]}/logs/tcserver.pid` > /dev/null 2>&1"
+  #   supports :status => true
+  #   action params[:action]
+  # end
+    execute "start_tc_server" do
+      environment ({ "JAVA_HOME" => "#{java_home}" })
+      cwd "/opt/pivotal/pivotal-tc-server-standard/tcruntime-#{params[:name]}/bin"
+      command "/etc/init.d/tcserver-instance-tcruntime-#{params[:name]} start"
+    end
   end
 end
