@@ -96,8 +96,8 @@ define :tcruntime_instance,
   # end
     execute "start_tc_server" do
       environment ({ "JAVA_HOME" => "#{java_home}" })
-      cwd "/opt/pivotal/pivotal-tc-server-standard/tcruntime-#{params[:name]}/bin"
-      command "/etc/init.d/tcserver-instance-tcruntime-#{params[:name]} start"
+      cwd "/opt/pivotal/pivotal-tc-server-standard/#{params[:name]}/bin"
+      command "/etc/init.d/tcserver-instance-#{params[:name]} start"
     end
   end
 end
